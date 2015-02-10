@@ -12,6 +12,7 @@ using namespace std;
 class SearchProcessor {
 
 private:
+  static void setArrayFromIndexLine (string indexLine, int* array);
 
 public:
   static void processParameters (string& patternFileName,

@@ -4,26 +4,41 @@ SuffixArrayIndexer::SuffixArrayIndexer(string& text) {
   this->text = text;
   this->n = text.size();
   this->m = ceil(log2(n));
+  this->suffixArray = new int[n];
+  this->LLcp = new int[n]();
+  this->RLcp = new int[n]();
+}
+
+SuffixArrayIndexer::SuffixArrayIndexer(string& text, int* suffixArray, int* LLcp, int* RLcp) {
+  this->text = text;
+  this->n = text.size();
+  this->m = ceil(log2(n));
+  this->suffixArray = suffixArray;
+  this->LLcp = LLcp;
+  this->RLcp = RLcp;
 }
 
 SuffixArrayIndexer::~SuffixArrayIndexer() {
   text.clear();
+  delete [] suffixArray;
+  delete [] LLcp;
+  delete [] RLcp;
 }
 
-int* SuffixArrayIndexer::buildSuffixArray() {
+void SuffixArrayIndexer::buildSuffixArray() {
   int** p = buildP();
-  int* suffixArray = new int[n];
 
   for (int i = 0; i < n; i++) {
     suffixArray[p[m][i]-1] = i;
   }
 
+  // compute LLcp and RLcp
+  computeLcps(0, n-1, suffixArray, p);
+
   // delete p
   for (int i = 0; i < m; i++) {
     delete [] p[i];
   }
-
-  return suffixArray;
 }
 
 int** SuffixArrayIndexer::buildP() {
@@ -34,9 +49,10 @@ int** SuffixArrayIndexer::buildP() {
     p[i] = new int[n];
   }
 
-  // Initialize p[0] with letter values
+  // Initialize p[0] with letter (ascii) values
   for (int i = 0; i < n; i++) {
     p[0][i] = text[i];
+    // TODO: save break line position into a vector
   }
 
   int lastHighestRank;
@@ -114,10 +130,59 @@ bool SuffixArrayIndexer::compareTriples(const triple& triple1, const triple& tri
   return (get<1>(triple1) < get<1>(triple2));
 }
 
+void SuffixArrayIndexer::computeLcps(int left, int right, int* suffixArray, int** p) {
+  if (right - left <= 1) {
+    return;
+  }
+  else {
+    int middle = (left + right)/2;
+
+    LLcp[middle] = computeLcpP(suffixArray[left], suffixArray[middle], p);
+    RLcp[middle] = computeLcpP(suffixArray[middle], suffixArray[right], p);
+
+    computeLcps(left, middle, suffixArray, p);
+    computeLcps(middle, right, suffixArray, p);
+  }
+}
+
+int SuffixArrayIndexer::computeLcpP(int i, int j, int** p) {
+  if (i == j) {
+    return n - 1 + i;
+  }
+  else {
+    int k = m;
+    int lcp = 0;
+
+    while (k >= 0 && i <= n && j <=n) {
+      if (p[k][i] == p[k][j]) {
+        lcp = lcp + pow(2, k);
+        i = i + pow(2, k);
+        j = j + pow(2, k);
+      }
+
+      k--;
+    }
+
+    return lcp;
+  }
+}
+
 int SuffixArrayIndexer::getN() {
   return n;
 }
 
 int SuffixArrayIndexer::getM() {
   return m;
+}
+
+int*  SuffixArrayIndexer::getSuffixArray() {
+  return suffixArray;
+}
+
+int*  SuffixArrayIndexer::getLLcp() {
+  return LLcp;
+}
+
+int*  SuffixArrayIndexer::getRLcp() {
+  return RLcp;
 }

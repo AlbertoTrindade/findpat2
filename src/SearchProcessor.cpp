@@ -41,31 +41,37 @@ void SearchProcessor::processParameters (string& patternFileName,
 
   int n; // size of text and suffix array
   int* suffixArray;
+  int* LLcp;
+  int* RLcp;
   string text;
 
   bool firstLine = true;
+  bool secondLine = true;
+  bool thirdLine = true;
 
   while (getline(indexTextStream, indexTextLine)) {
     if (firstLine) { 
       // n: first line
       n = stoi(indexTextLine);
       suffixArray = new int[n];
+      LLcp = new int[n];
+      RLcp = new int[n];
 
       firstLine = false;
     }
-    else {
+    else if (secondLine){
       // suffix array: second line
-      istringstream suffixArrayStream(indexTextLine);
-      string suffixArrayElementString;
-
-      int i = 0;
-
-      while (getline(suffixArrayStream, suffixArrayElementString, ' ')) {
-        int suffixArrayElement = stoi(suffixArrayElementString);
-        suffixArray[i] = suffixArrayElement;
-
-        i++;
-      }
+      setArrayFromIndexLine (indexTextLine, suffixArray);
+      secondLine = false;
+    }
+    else if (thirdLine) {
+      // LLcp array: third line
+      setArrayFromIndexLine (indexTextLine, LLcp);
+      thirdLine = false;
+    }
+    else {
+      // RLcp array: third line
+      setArrayFromIndexLine (indexTextLine, RLcp);
 
       // text: remaining lines
       text = indexTextStream.str().substr(indexTextStream.tellg());
@@ -74,8 +80,24 @@ void SearchProcessor::processParameters (string& patternFileName,
     }
   }
 
-  // TODO: use suffix array, text and patterns to find occurrences
+  SuffixArrayIndexer* indexer = new SuffixArrayIndexer(text, suffixArray, LLcp, RLcp);
+
+  // TODO: use indexer to find occurrences and print lines or count from result
 
   // Releasing resources
-  delete [] suffixArray;
+  delete indexer;
+}
+
+void SearchProcessor::setArrayFromIndexLine (string indexLine, int* array) {
+  istringstream stringStream(indexLine);
+  string arrayElementString;
+
+  int i = 0;
+
+  while (getline(stringStream, arrayElementString, ' ')) {
+   int arrayElement = stoi(arrayElementString);
+   array[i] = arrayElement;
+
+   i++;
+  }
 }

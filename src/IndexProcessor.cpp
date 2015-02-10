@@ -18,8 +18,12 @@ void IndexProcessor::processParameters (string& textFileName) {
 
   //Suffix array indexer
   SuffixArrayIndexer* indexer = new SuffixArrayIndexer(text);
-  int* suffixArray = indexer->buildSuffixArray();
+  indexer->buildSuffixArray();
+
   int n = indexer->getN();
+  int* suffixArray = indexer->getSuffixArray();
+  int* LLcp = indexer->getLLcp();
+  int* RLcp = indexer->getRLcp();
 
   // Create index file
   // TODO: Compress index text (write content into a string stream, instead of directly into the file, to be used in compression)
@@ -35,6 +39,18 @@ void IndexProcessor::processParameters (string& textFileName) {
   }
   indexFile << endl;
 
+  // Write LLcp in third line
+  for (int i = 0; i < n; i++) {
+    indexFile << LLcp[i] << " ";
+  }
+  indexFile << endl;
+
+  // Write RLcp in fourth line
+  for (int i = 0; i < n; i++) {
+    indexFile << RLcp[i] << " ";
+  }
+  indexFile << endl;
+
   // Write text in the remaining lines
   indexFile << text;
 
@@ -44,7 +60,7 @@ void IndexProcessor::processParameters (string& textFileName) {
   // Releasing resources
   textFile.close();
   indexFile.close();
-  delete [] suffixArray;
+  delete indexer;
 }
 
 string IndexProcessor::getIndexFileName(string& textFileName) {

@@ -31,13 +31,15 @@ private:
   static bool compareTriples(const triple& triple1, const triple& triple2);
   void computeLcps(int left, int right, int* suffixArray, int** p);
   int computeLcpP(int i, int j, int** p);
+  int searchLp(string& pattern);
+  int computeLcp(string& text1, string& text2);
 
 public:
   SuffixArrayIndexer(string& text);
   SuffixArrayIndexer(string& text, int* suffixArray, int* LLcp, int* RLcp);
   ~SuffixArrayIndexer();
   void buildSuffixArray();
-  int findMatches(string& text);
+  void findMatches(string& pattern, vector<int>& occurrences);
   int getN();
   int getM();
   int* getSuffixArray();

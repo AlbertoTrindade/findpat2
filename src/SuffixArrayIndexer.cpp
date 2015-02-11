@@ -7,6 +7,7 @@ SuffixArrayIndexer::SuffixArrayIndexer(string& text) {
   this->suffixArray = new int[n];
   this->LLcp = new int[n]();
   this->RLcp = new int[n]();
+  this->breakLinePositions.push_back(-1);
 }
 
 SuffixArrayIndexer::SuffixArrayIndexer(string& text, int* suffixArray, int* LLcp, int* RLcp) {
@@ -173,6 +174,90 @@ int SuffixArrayIndexer::computeLcpP(int i, int j, int** p) {
 
     return lcp;
   }
+}
+
+void SuffixArrayIndexer::findMatches(string& pattern, vector<int>& occurrences) {
+  int q = pattern.size();
+  int Lp = searchLp(pattern);
+  
+  int i = Lp;
+
+  while (text.substr(suffixArray[i], q) == pattern) {
+    occurrences.push_back(suffixArray[i]);
+    i++;
+  }
+}
+
+int SuffixArrayIndexer::searchLp(string& pattern) {
+  int q = pattern.size();
+
+  string textFromLm = text.substr(suffixArray[0]);
+  string textFromRm = text.substr(suffixArray[n-1]); 
+
+  int L = computeLcp(textFromLm, pattern);
+  int R = computeLcp(textFromRm, pattern);
+
+  if ((L == q) || (pattern.substr(L) <= text.substr(suffixArray[0] + L))) {
+    return 0;
+  }
+  else if ((R < q) && (pattern.substr(R) > text.substr(suffixArray[n-1] + R))) {
+    return n;
+  }
+  else {
+    int left = 0;
+    int right = n - 1;
+    int middle;
+    int H;
+
+    string textSubstring;
+    string patternSubstring;
+
+    while (right - left > 1) {
+      middle = (left + right)/2;
+
+      if (L >= R) {
+        if (LLcp[middle] >= L) {
+          textSubstring = text.substr(suffixArray[middle] + L);
+          patternSubstring = pattern.substr(L);
+          H = L + computeLcp(textSubstring, patternSubstring);
+        }
+        else {
+          H = LLcp[middle];
+        }
+      }
+      else {
+        if (RLcp[middle] >= R) {
+          textSubstring = text.substr(suffixArray[middle] + R);
+          patternSubstring = pattern.substr(R);
+          H = L + computeLcp(textSubstring, patternSubstring);
+        }
+        else {
+          H = RLcp[middle];
+        }
+      }
+
+      if ((H == q) || (pattern.substr(H) <= text.substr(suffixArray[middle] + H))) { // go left
+        right = middle;
+        R = H;
+      }
+      else { // go rith
+        left = middle;
+        L = H;
+      }
+    }
+
+    return right;
+  }
+}
+
+int SuffixArrayIndexer::computeLcp(string& text1, string& text2) {
+  int lcp = 0;
+
+  while ((lcp < (int) text1.size()) && (lcp < (int) text2.size()) && (text1.at(lcp) == text2.at(lcp))) {
+    lcp++;
+  }
+
+  return lcp;
 }
 
 int SuffixArrayIndexer::getN() {

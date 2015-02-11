@@ -89,13 +89,25 @@ void SearchProcessor::processParameters (string& patternFileName,
 
   SuffixArrayIndexer* indexer = new SuffixArrayIndexer(text, suffixArray, LLcp, RLcp);
 
-  // TODO: use indexer to find occurrences and print lines or count from result
+  // Finding matches
+  vector<int> occurrences;
+
+  for (string& currentPattern : patterns) {
+    indexer->findMatches(currentPattern, occurrences);
+  }
+
+  if (count) {
+    cout << occurrences.size() << endl;
+  }
+  else {
+     printMatchedLines(occurrences, breakLinePositions, text);
+  }
 
   // Releasing resources
   delete indexer;
 }
 
-void SearchProcessor::setArrayFromIndexLine (string indexLine, int* array) {
+void SearchProcessor::setArrayFromIndexLine (string& indexLine, int* array) {
   istringstream stringStream(indexLine);
   string arrayElementString;
 
@@ -109,12 +121,41 @@ void SearchProcessor::setArrayFromIndexLine (string indexLine, int* array) {
   }
 }
 
-void SearchProcessor::setVectorFromIndexLine (string indexLine, vector<int>& vector) {
+void SearchProcessor::setVectorFromIndexLine (string& indexLine, vector<int>& vector) {
   istringstream stringStream(indexLine);
   string vectorElementString;
 
   while (getline(stringStream, vectorElementString, ' ')) {
    int vectorElement = stoi(vectorElementString);
    vector.push_back(vectorElement);
+  }
+}
+
+void SearchProcessor::printMatchedLines(vector<int>& occurrences, vector<int>& breakLinePositions, string& text) {
+  int occurrencesCount = occurrences.size();
+  int breakLinesCount = breakLinePositions.size();
+  set<int> matchedBreakLines;
+
+  // sorting match indices
+  sort(occurrences.begin(), occurrences.end());
+
+  int i = 0;
+  int j = 1;
+
+  while ((i < occurrencesCount) && (j < breakLinesCount)) {
+    int currentBreakLine = breakLinePositions.at(j);
+    int previousBreakLine = breakLinePositions.at(j-1);
+
+    if (occurrences.at(i) < currentBreakLine) {
+      if (!matchedBreakLines.count(currentBreakLine)) { // new occurrence within current line, let us print it out
+        cout << text.substr(previousBreakLine + 1, currentBreakLine - previousBreakLine - 1) << endl;
+        matchedBreakLines.insert(currentBreakLine);
+      }
+
+      i++;
+    }
+    else {
+      j++;
+    }
   }
 }

@@ -18,7 +18,7 @@ enum programOptions {UNKNOWN, HELP, PATTERNFILE, COUNT};
 
 const option::Descriptor usage[] =
   {
-    {UNKNOWN, 0, "" , "", Arg::None, "USAGE: findpat2 [OPTIONS] PATTERN TEXTFILE [TEXTFILE...]" },
+    {UNKNOWN, 0, "" , "", Arg::None, "USAGE: findpat2 MODE [OPTIONS] PATTERN TEXTFILE [TEXTFILE...]" },
     {UNKNOWN, 0, "" , "", Arg::None, "Search for PATTERN in each TEXTFILE\n"
                                              "If --pattern option is set, a list of patterns will be used instead of PATTERN\n"
                                              "Multiple files can be indicated for TEXTFILE by using wildcards\n\n"
@@ -37,12 +37,13 @@ const option::Descriptor usage[] =
 
 int main(int argc, char** argv) {
 
+  string mode; // execution mode: index or search
+
   // Optional parameters
   string patternFile; // search
   bool count; // search
 
   // Required parameters (positional options)
-  string mode; // index or search mode
   string textFile; // index
   string pattern; // search
   string indexFile; // search
@@ -51,6 +52,26 @@ int main(int argc, char** argv) {
   if (argc > 0) {
     argc -= 1;
     argv += 1;
+  }
+
+  // Get and check execution mode
+  if (argc > 0) {
+    mode = argv[0];
+
+    if ((mode != "index") && (mode != "search")) { // invalid option
+      cerr << "Invalid execution mode. You have to specify it either as search or index" << endl;
+
+      return 1;
+    }
+
+    // skip it from parsing
+    argc -= 1;
+    argv += 1;
+  }
+  else {
+    cerr << "You have to specity a execution mode: search or index" << endl;
+
+    return 1;
   }
 
   // Initializing option parser structures
@@ -82,58 +103,42 @@ int main(int argc, char** argv) {
   // Positional options (required parameters)
   int positionalOptionsCount = parse.nonOptionsCount();
 
-  if (positionalOptionsCount == 0) {
-    cerr << "You have to specity a execution mode: search or index" << endl;
-
-    return 1;
-  }
-  else {
-    mode = parse.nonOption(0);
-
-    if (mode == "index") {
-      // Index mode
-      if (positionalOptionsCount == 2) {
-        textFile = parse.nonOption(1);
-      }
-      else {
-        cerr << "In index mode, you have to specity a text file to be indexed" << endl;
-
-        return 1;
-      }
-
-      IndexProcessor::processParameters(textFile);
-    }
-    else if (mode == "search") {
-      // Search mode
-      if (options[PATTERNFILE]) {
-        if (positionalOptionsCount == 2) {
-          indexFile = parse.nonOption(1);
-        }
-        else {
-          cerr << "In search mode, you have to specity a pattern (or a patternfile) and a index file" << endl;
-
-          return 1;
-        }
-      }
-      else {
-        if (positionalOptionsCount == 3) {
-          pattern = parse.nonOption(1);
-          indexFile = parse.nonOption(2);
-        }
-        else {
-          cerr << "In search mode, you have to specity a pattern (or a patternfile) and a index file" << endl;
-
-          return 1;
-        }
-      }
-
-      SearchProcessor::processParameters(patternFile, count, pattern, indexFile);
+  if (mode == "index") { // Index mode
+    if (positionalOptionsCount == 1) {
+      textFile = parse.nonOption(0);
     }
     else {
-      cerr << "Invalid execution mode. You have to specify it either as search or index" << endl;
+      cerr << "In index mode, you have to specity a text file to be indexed" << endl;
 
       return 1;
     }
+
+    IndexProcessor::processParameters(textFile);
+  }
+  else { // Search mode
+    if (options[PATTERNFILE]) {
+      if (positionalOptionsCount == 1) {
+        indexFile = parse.nonOption(0);
+      }
+      else {
+        cerr << "In search mode, you have to specity a pattern (or a patternfile) and a index file" << endl;
+
+        return 1;
+      }
+    }
+    else {
+      if (positionalOptionsCount == 2) {
+        pattern = parse.nonOption(0);
+        indexFile = parse.nonOption(1);
+      }
+      else {
+        cerr << "In search mode, you have to specity a pattern (or a patternfile) and a index file" << endl;
+
+        return 1;
+      }
+    }
+
+    SearchProcessor::processParameters(patternFile, count, pattern, indexFile);
   }
 
   // Unknown options

@@ -23,6 +23,7 @@ SuffixArrayIndexer::~SuffixArrayIndexer() {
   delete [] suffixArray;
   delete [] LLcp;
   delete [] RLcp;
+  breakLinePositions.clear();
 }
 
 void SuffixArrayIndexer::buildSuffixArray() {
@@ -34,6 +35,9 @@ void SuffixArrayIndexer::buildSuffixArray() {
 
   // compute LLcp and RLcp
   computeLcps(0, n-1, suffixArray, p);
+
+  // adding position after last one as a break line
+  breakLinePositions.push_back(n);
 
   // delete p
   for (int i = 0; i < m; i++) {
@@ -51,8 +55,12 @@ int** SuffixArrayIndexer::buildP() {
 
   // Initialize p[0] with letter (ascii) values
   for (int i = 0; i < n; i++) {
-    p[0][i] = text[i];
-    // TODO: save break line position into a vector
+    p[0][i] = text.at(i);
+    
+    //save break line position into a vector
+    if (text.at(i) == '\n') {
+      breakLinePositions.push_back(i);
+    }
   }
 
   int lastHighestRank;
@@ -185,4 +193,8 @@ int*  SuffixArrayIndexer::getLLcp() {
 
 int*  SuffixArrayIndexer::getRLcp() {
   return RLcp;
+}
+
+vector<int> SuffixArrayIndexer::getBreakLinePositions() {
+  return breakLinePositions;
 }

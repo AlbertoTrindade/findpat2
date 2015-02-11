@@ -13,6 +13,7 @@ class SearchProcessor {
 
 private:
   static void setArrayFromIndexLine (string indexLine, int* array);
+  static void setVectorFromIndexLine (string indexLine, vector<int>& vector);
 
 public:
   static void processParameters (string& patternFileName,

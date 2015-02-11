@@ -24,6 +24,7 @@ private:
   int* suffixArray;
   int* LLcp;
   int* RLcp;
+  vector<int> breakLinePositions;
 
   int** buildP();
   void sortTriples(triple* triples, int numBuckets);
@@ -42,4 +43,5 @@ public:
   int* getSuffixArray();
   int* getLLcp();
   int* getRLcp();
+  vector<int> getBreakLinePositions();
 };

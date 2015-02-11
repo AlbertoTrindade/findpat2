@@ -43,11 +43,13 @@ void SearchProcessor::processParameters (string& patternFileName,
   int* suffixArray;
   int* LLcp;
   int* RLcp;
+  vector<int> breakLinePositions;
   string text;
 
   bool firstLine = true;
   bool secondLine = true;
   bool thirdLine = true;
+  bool fourthLine = true;
 
   while (getline(indexTextStream, indexTextLine)) {
     if (firstLine) { 
@@ -61,17 +63,22 @@ void SearchProcessor::processParameters (string& patternFileName,
     }
     else if (secondLine){
       // suffix array: second line
-      setArrayFromIndexLine (indexTextLine, suffixArray);
+      setArrayFromIndexLine(indexTextLine, suffixArray);
       secondLine = false;
     }
     else if (thirdLine) {
       // LLcp array: third line
-      setArrayFromIndexLine (indexTextLine, LLcp);
+      setArrayFromIndexLine(indexTextLine, LLcp);
       thirdLine = false;
     }
+    else if (fourthLine){
+      // RLcp array: fourth line
+      setArrayFromIndexLine(indexTextLine, RLcp);
+      fourthLine = false;
+    }
     else {
-      // RLcp array: third line
-      setArrayFromIndexLine (indexTextLine, RLcp);
+      // breakLinePositions: fifth line
+      setVectorFromIndexLine(indexTextLine, breakLinePositions);
 
       // text: remaining lines
       text = indexTextStream.str().substr(indexTextStream.tellg());
@@ -99,5 +106,15 @@ void SearchProcessor::setArrayFromIndexLine (string indexLine, int* array) {
    array[i] = arrayElement;
 
    i++;
+  }
+}
+
+void SearchProcessor::setVectorFromIndexLine (string indexLine, vector<int>& vector) {
+  istringstream stringStream(indexLine);
+  string vectorElementString;
+
+  while (getline(stringStream, vectorElementString, ' ')) {
+   int vectorElement = stoi(vectorElementString);
+   vector.push_back(vectorElement);
   }
 }

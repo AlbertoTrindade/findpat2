@@ -24,6 +24,7 @@ void IndexProcessor::processParameters (string& textFileName) {
   int* suffixArray = indexer->getSuffixArray();
   int* LLcp = indexer->getLLcp();
   int* RLcp = indexer->getRLcp();
+  vector<int> breakLinePositions = indexer->getBreakLinePositions();
 
   // Create index file
   // TODO: Compress index text (write content into a string stream, instead of directly into the file, to be used in compression)
@@ -48,6 +49,12 @@ void IndexProcessor::processParameters (string& textFileName) {
   // Write RLcp in fourth line
   for (int i = 0; i < n; i++) {
     indexFile << RLcp[i] << " ";
+  }
+  indexFile << endl;
+
+  // Write break line positions in fifth line
+  for (int& breakLinePosition : breakLinePositions) {
+    indexFile << breakLinePosition << " ";
   }
   indexFile << endl;
 

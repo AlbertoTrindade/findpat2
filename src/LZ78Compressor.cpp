@@ -1,61 +1,69 @@
 #include "LZ78Compressor.h"
 
-string LZ78Compressor::encode(string& text) {
+void LZ78Compressor::encode(string& text, ofstream& indexFile) {
   int n = text.size();
 
-  TreeNode* root = new TreeNode(0);
-  int nextId = 1;
+  // in compression, the dictionary is represented as a tree
+  DictionaryTreeNode* dictionaryRoot = new DictionaryTreeNode(0);
+  unsigned short nextId = 1;
 
-  stringstream codeStream;
-  TreeNode* currentNode = root;
+  DictionaryTreeNode* currentNode = dictionaryRoot;
+
+  vector<CodeWord> codeWords;
 
   for (int i = 0; i < n; i++) {
     char currentLetter = text.at(i);
 
-    if (currentNode->children.count(currentLetter) > 0) { // wti belongs to dictionary
+    if (currentNode->children.count(currentLetter) > 0) { // w.ti belongs to dictionary
       currentNode = currentNode->children[currentLetter];
     }
     else {
-      codeStream << cwEncode(currentNode->id, currentLetter); 
+      // add (id, mismatch) to codewords
+      cwEncode(currentNode->id, currentLetter, codeWords); 
 
-      TreeNode* newNode = new TreeNode(nextId);
-      currentNode->children[currentLetter] = newNode;
+      if (nextId < DICTIONARY_LIMIT) { // checking dictionary limit
+        DictionaryTreeNode* newNode = new DictionaryTreeNode(nextId);
+        currentNode->children[currentLetter] = newNode;
 
-      nextId++;
+        nextId++;
+      }
 
-      currentNode = root;
+      currentNode = dictionaryRoot;
     }
   }
 
-  if (currentNode != root) { // w belongs to dictionary
-    codeStream << cwEncode(currentNode->id, LAST_MISMATCH); 
+  if (currentNode != dictionaryRoot) { // w belongs to dictionary
+    cwEncode(currentNode->id, LAST_MISMATCH, codeWords); 
   }
 
-  deleteTreeNode(root);
+  // saving vector of codewords into binary file
+  indexFile.write(reinterpret_cast<const char*>(&codeWords[0]), codeWords.size() * sizeof(CodeWord));
 
-  return codeStream.str();
+  // Deallocating memory
+  deleteDictionaryTreeNode(dictionaryRoot);
+  codeWords.clear();
 }
 
-string LZ78Compressor::cwEncode(int id, char letter) {
-  stringstream encodedCwStream;
-  encodedCwStream << id <<  "," <<  letter << SEPARATOR;
+void LZ78Compressor::cwEncode(unsigned short id, char mismatch, vector<CodeWord>& codeWords) {
+  CodeWord codeWord;
+  codeWord.id = id;
+  codeWord.mismatch = mismatch;
 
-  return encodedCwStream.str();
+  codeWords.push_back(codeWord);
 }
 
-void LZ78Compressor::deleteTreeNode(TreeNode* node) {
+void LZ78Compressor::deleteDictionaryTreeNode(DictionaryTreeNode* node) {
   if (node != NULL) {
-    for (unordered_map<char, TreeNode*>::iterator it = node->children.begin(); it != node->children.end(); it++) {
-      deleteTreeNode(node->children[it->first]);
+    for (unordered_map<char, DictionaryTreeNode*>::iterator it = node->children.begin(); it != node->children.end(); it++) {
+      deleteDictionaryTreeNode(node->children[it->first]);
     }
 
     delete node;
   }
 }
 
-string LZ78Compressor::decode(string& code) {
-  int m = code.size();
-
+string LZ78Compressor::decode(ifstream& indexFile, int indexFileSize) {
+  //in decompression, the dictionary is represented as a hashmap, instead of tree
   unordered_map<int, string> dictionary;
 
   dictionary[0] = "";
@@ -63,51 +71,29 @@ string LZ78Compressor::decode(string& code) {
 
   stringstream textStream;
 
-  int j = 0;
+  int numberCodeWords = indexFileSize/sizeof(CodeWord);
+  vector<CodeWord> codeWords(numberCodeWords);
+  indexFile.read(reinterpret_cast<char*>(&codeWords[0]), numberCodeWords * sizeof(CodeWord));
 
-  while (j < m) {
-    decodeResult result = cwDecode(code, j);
+  // For each codeword, get the dictionaty id and mismatch to append the corresponding string to text
+  for (int i = 0; i < numberCodeWords - 1; i++) {
+    CodeWord codeWord = codeWords[i];
 
-    int id = get<0>(result);
-    char mismatch = get<1>(result);
-    int length = get<2>(result);
+    textStream << dictionary[codeWord.id] << codeWord.mismatch;
 
-    j = j + length;
-    textStream << dictionary[id] << mismatch;
-    dictionary[nextId] = dictionary[id] + mismatch;
+    if (nextId < DICTIONARY_LIMIT) { // checking dictionary limit
+      dictionary[nextId] = dictionary[codeWord.id] + codeWord.mismatch;
+      nextId++;
+    }
+  }
 
-    nextId++;
+  // last one (which might have the special character as the mismatch one, what will not be appended)
+  textStream << dictionary[codeWords[numberCodeWords - 1].id];
+  if (codeWords[numberCodeWords - 1].mismatch != LAST_MISMATCH) {
+    textStream << codeWords[numberCodeWords - 1].mismatch;
   }
 
   dictionary.clear();
 
   return textStream.str();
-}
-
-LZ78Compressor::decodeResult LZ78Compressor::cwDecode(string code, int j) {
-  int id;
-  char mismatch;
-  int length;
-
-  string idString;
-  bool hasFinished;
-
-  int i = j;
-
-  while (!hasFinished) {
-    if (code.at(i) != ',') {
-      idString += code.at(i);
-
-      i++;
-    }
-    else {
-      id = stoi(idString);
-      mismatch = code.at(i+1);
-      length = i - j + 3;
-
-      hasFinished = true;
-    }
-  }
-
-  return decodeResult(id, mismatch, length);
 }

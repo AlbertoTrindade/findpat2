@@ -61,14 +61,12 @@ void IndexProcessor::processParameters (string& textFileName) {
   uncompressedTextStream << text;
 
   string uncompressedText = uncompressedTextStream.str();
-  string compressedText = LZ78Compressor::encode(uncompressedText);
 
   string indexFileName = getIndexFileName(textFileName);
-  ofstream indexFile(indexFileName);
+  ofstream indexFile(indexFileName, ios::out | ios::binary);
 
-  // Write compressed text in file
-  indexFile << compressedText;
-  
+  // Compress text and save it into index file
+  LZ78Compressor::encode(uncompressedText, indexFile);
 
   // Sucess message
   cout << "Index file '" << indexFileName << "' has been successfully created" << endl;

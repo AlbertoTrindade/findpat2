@@ -21,20 +21,17 @@ void SearchProcessor::processParameters (string& patternFileName,
   }
 
   // Reading index file
-  ifstream indexFile(indexFileName);
+  ifstream indexFile(indexFileName, ios::in | ios::binary);
 
   if (indexFile.fail()) {
     cout << indexFileName << ": No such file or directory" << endl;
     return;
   }
 
-  // Reading index text from buffer
-  stringstream indexFileBuffer;
-  indexFileBuffer << indexFile.rdbuf();
-  string indexText = indexFileBuffer.str();
+  int indexFileSize = getFileSize(indexFileName);
 
-  // Decompressing index text
-  indexText = LZ78Compressor::decode(indexText);
+  // Get decompressed index text
+  string indexText = LZ78Compressor::decode(indexFile, indexFileSize);
 
   // Read first (n), second (suffixArray) and remaining lines (text) of decompressed index text
   istringstream indexTextStream(indexText);
@@ -101,11 +98,23 @@ void SearchProcessor::processParameters (string& patternFileName,
     cout << occurrences.size() << endl;
   }
   else {
-     printMatchedLines(occurrences, breakLinePositions, text);
+    printMatchedLines(occurrences, breakLinePositions, text);
   }
 
   // Releasing resources
   delete indexer;
+}
+
+int SearchProcessor::getFileSize (string& fileName) {
+  int fileSize;
+  ifstream file(fileName);
+
+  file.seekg(0, ios_base::end);
+  fileSize = file.tellg();
+
+  file.close();
+
+  return fileSize;
 }
 
 void SearchProcessor::setArrayFromIndexLine (string& indexLine, int* array) {

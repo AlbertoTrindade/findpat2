@@ -15,6 +15,7 @@ using namespace std;
 class SearchProcessor {
 
 private:
+  static int getFileSize (string& fileName);
   static void setArrayFromIndexLine (string& indexLine, int* array);
   static void setVectorFromIndexLine (string& indexLine, vector<int>& vector);
   static void printMatchedLines(vector<int>& occurrences, vector<int>& breakLinePositions, string& text);

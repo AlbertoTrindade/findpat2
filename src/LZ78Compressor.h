@@ -3,33 +3,36 @@
 #include <string>
 #include <iterator>
 #include <tuple>
+#include <vector>
 #include <unordered_map>
 
-#include <iostream>
 #include <sstream>
+#include <fstream>
 
 using namespace std;
 
-struct TreeNode {
+struct DictionaryTreeNode {
   int id;
-  unordered_map<char, TreeNode*> children;
+  unordered_map<char, DictionaryTreeNode*> children;
 
-  TreeNode(int index):id(index) {}
+  DictionaryTreeNode(int index):id(index) {}
+};
+
+struct CodeWord {
+  unsigned short id;
+  char mismatch;
 };
 
 class LZ78Compressor {
-
-typedef tuple<int, char, int> decodeResult;
   
 private:
   static const char LAST_MISMATCH = 254;
-  static const char SEPARATOR = 245;
+  static const unsigned short DICTIONARY_LIMIT = 65535; // max value for unsigned shor
 
-  static string cwEncode(int id, char letter);
-  static decodeResult cwDecode(string code, int j);
-  static void deleteTreeNode(TreeNode* node);
+  static void cwEncode(unsigned short id, char mismatch, vector<CodeWord>& codeWords);
+  static void deleteDictionaryTreeNode(DictionaryTreeNode* node);
 
 public:
-  static string encode(string& text);
-  static string decode(string& code);
+  static void encode(string& text, ofstream& indexFile);
+  static string decode(ifstream& indexFile, int indexFileSize);
 };

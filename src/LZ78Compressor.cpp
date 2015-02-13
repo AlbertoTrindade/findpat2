@@ -71,8 +71,9 @@ string LZ78Compressor::decode(ifstream& indexFile, int indexFileSize) {
 
   stringstream textStream;
 
+  // Reading codewords from binary file
   int numberCodeWords = indexFileSize/sizeof(CodeWord);
-  vector<CodeWord> codeWords(numberCodeWords);
+  CodeWord* codeWords = new CodeWord[numberCodeWords];
   indexFile.read(reinterpret_cast<char*>(&codeWords[0]), numberCodeWords * sizeof(CodeWord));
 
   // For each codeword, get the dictionaty id and mismatch to append the corresponding string to text
@@ -93,7 +94,9 @@ string LZ78Compressor::decode(ifstream& indexFile, int indexFileSize) {
     textStream << codeWords[numberCodeWords - 1].mismatch;
   }
 
+  // Deallocating memory
   dictionary.clear();
+  delete [] codeWords;
 
   return textStream.str();
 }

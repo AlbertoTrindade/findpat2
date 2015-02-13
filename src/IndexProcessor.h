@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "SuffixArrayIndexer.h"
+#include "LZ78Compressor.h"
 
 using namespace std;
 

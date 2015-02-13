@@ -56,10 +56,11 @@ int** SuffixArrayIndexer::buildP() {
 
   // Initialize p[0] with letter (ascii) values
   for (int i = 0; i < n; i++) {
-    p[0][i] = text.at(i);
+    unsigned char currentLetter = text.at(i);
+    p[0][i] = currentLetter;
     
     //save break line position into a vector
-    if (text.at(i) == '\n') {
+    if (currentLetter == '\n') {
       breakLinePositions.push_back(i);
     }
   }

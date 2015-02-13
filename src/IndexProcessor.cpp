@@ -27,39 +27,48 @@ void IndexProcessor::processParameters (string& textFileName) {
   vector<int> breakLinePositions = indexer->getBreakLinePositions();
 
   // Create index file
-  // TODO: Compress index text (write content into a string stream, instead of directly into the file, to be used in compression)
-  string indexFileName = getIndexFileName(textFileName);
-  ofstream indexFile(indexFileName);
+  
+  stringstream uncompressedTextStream;
 
   // Write n (text length) in first line
-  indexFile << n << endl;
+  uncompressedTextStream << n << endl;
 
   // Write suffix array in second line
   for (int i = 0; i < n; i++) {
-    indexFile << suffixArray[i] << " ";
+    uncompressedTextStream << suffixArray[i] << " ";
   }
-  indexFile << endl;
+  uncompressedTextStream << endl;
 
   // Write LLcp in third line
   for (int i = 0; i < n; i++) {
-    indexFile << LLcp[i] << " ";
+    uncompressedTextStream << LLcp[i] << " ";
   }
-  indexFile << endl;
+  uncompressedTextStream << endl;
 
   // Write RLcp in fourth line
   for (int i = 0; i < n; i++) {
-    indexFile << RLcp[i] << " ";
+    uncompressedTextStream << RLcp[i] << " ";
   }
-  indexFile << endl;
+  uncompressedTextStream << endl;
 
   // Write break line positions in fifth line
   for (int& breakLinePosition : breakLinePositions) {
-    indexFile << breakLinePosition << " ";
+    uncompressedTextStream << breakLinePosition << " ";
   }
-  indexFile << endl;
+  uncompressedTextStream << endl;
 
   // Write text in the remaining lines
-  indexFile << text;
+  uncompressedTextStream << text;
+
+  string uncompressedText = uncompressedTextStream.str();
+  string compressedText = LZ78Compressor::encode(uncompressedText);
+
+  string indexFileName = getIndexFileName(textFileName);
+  ofstream indexFile(indexFileName);
+
+  // Write compressed text in file
+  indexFile << compressedText;
+  
 
   // Sucess message
   cout << "Index file '" << indexFileName << "' has been successfully created" << endl;

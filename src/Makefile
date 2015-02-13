@@ -1,6 +1,6 @@
 MYPROGRAM = findpat2
 
-SOURCES = main.cpp IndexProcessor.cpp SearchProcessor.cpp SuffixArrayIndexer.cpp
+SOURCES = main.cpp IndexProcessor.cpp SearchProcessor.cpp SuffixArrayIndexer.cpp LZ78Compressor.cpp
 INCLUDES = ../libs/
 TARGET_DIR = ../bin/
 

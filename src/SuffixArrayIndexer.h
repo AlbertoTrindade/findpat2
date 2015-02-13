@@ -11,7 +11,7 @@ using namespace std;
 
 class SuffixArrayIndexer {
 
-typedef std::tuple<int,int,int> triple;
+typedef tuple<int, int, int> triple;
 
 private:
   static const int ALPHABET_LEN = 256;

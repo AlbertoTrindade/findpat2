@@ -33,7 +33,8 @@ void SearchProcessor::processParameters (string& patternFileName,
   indexFileBuffer << indexFile.rdbuf();
   string indexText = indexFileBuffer.str();
 
-  // TODO: Decompress indexText
+  // Decompressing index text
+  indexText = LZ78Compressor::decode(indexText);
 
   // Read first (n), second (suffixArray) and remaining lines (text) of decompressed index text
   istringstream indexTextStream(indexText);

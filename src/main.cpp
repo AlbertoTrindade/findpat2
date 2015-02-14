@@ -58,20 +58,18 @@ int main(int argc, char** argv) {
   if (argc > 0) {
     mode = argv[0];
 
-    if ((mode != "index") && (mode != "search")) { // invalid option
-      cerr << "Invalid execution mode. You have to specify it either as search or index" << endl;
+    if ((mode != "index") && (mode != "search")) { // invalid mode option
+      if ((mode != "-h") && (mode != "--help")) { // cheking if it is the help option
+        cerr << "Invalid execution mode. You have to specify it either as search or index. Try 'findpat2 --help' for more information." << endl;
 
-      return 1;
+        return 1;
+      }
     }
-
-    // skip it from parsing
-    argc -= 1;
-    argv += 1;
-  }
-  else {
-    cerr << "You have to specity a execution mode: search or index" << endl;
-
-    return 1;
+    else {
+      // skip it from parsing
+      argc -= 1;
+      argv += 1;
+    }
   }
 
   // Initializing option parser structures
@@ -108,7 +106,7 @@ int main(int argc, char** argv) {
       textFile = parse.nonOption(0);
     }
     else {
-      cerr << "In index mode, you have to specity a text file to be indexed" << endl;
+      cerr << "In index mode, you have to specity a text file to be indexed. Try 'findpat2 --help' for more information." << endl;
 
       return 1;
     }
@@ -121,7 +119,7 @@ int main(int argc, char** argv) {
         indexFile = parse.nonOption(0);
       }
       else {
-        cerr << "In search mode, you have to specity a pattern (or a patternfile) and a index file" << endl;
+        cerr << "In search mode, you have to specity a pattern (or a patternfile) and a index file. Try 'findpat2 --help' for more information." << endl;
 
         return 1;
       }
@@ -132,7 +130,7 @@ int main(int argc, char** argv) {
         indexFile = parse.nonOption(1);
       }
       else {
-        cerr << "In search mode, you have to specity a pattern (or a patternfile) and a index file" << endl;
+        cerr << "In search mode, you have to specity a pattern (or a patternfile) and a index file. Try 'findpat2 --help' for more information." << endl;
 
         return 1;
       }

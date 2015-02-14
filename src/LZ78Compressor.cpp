@@ -32,7 +32,7 @@ void LZ78Compressor::encode(string& text, ofstream& indexFile) {
     }
   }
 
-  if (currentNode != dictionaryRoot) { // w belongs to dictionary
+  if (currentNode != dictionaryRoot) { // w belongs to dictionary, so there was not a mismatch
     cwEncode(currentNode->id, LAST_MISMATCH, codeWords); 
   }
 
@@ -67,7 +67,7 @@ string LZ78Compressor::decode(ifstream& indexFile, int indexFileSize) {
   unordered_map<int, string> dictionary;
 
   dictionary[0] = "";
-  int nextId = 1;
+  unsigned short nextId = 1;
 
   stringstream textStream;
 

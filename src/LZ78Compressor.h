@@ -12,10 +12,10 @@
 using namespace std;
 
 struct DictionaryTreeNode {
-  int id;
+  unsigned short id;
   unordered_map<char, DictionaryTreeNode*> children;
 
-  DictionaryTreeNode(int index):id(index) {}
+  DictionaryTreeNode(unsigned short index):id(index) {}
 };
 
 struct CodeWord {
@@ -27,7 +27,7 @@ class LZ78Compressor {
   
 private:
   static const char LAST_MISMATCH = 254;
-  static const unsigned short DICTIONARY_LIMIT = 65535; // max value for unsigned shor
+  static const unsigned short DICTIONARY_LIMIT = 65535; // max value for unsigned short
 
   static void cwEncode(unsigned short id, char mismatch, vector<CodeWord>& codeWords);
   static void deleteDictionaryTreeNode(DictionaryTreeNode* node);

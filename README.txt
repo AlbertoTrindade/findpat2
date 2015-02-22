@@ -30,7 +30,7 @@ Instruções de Uso
 Uso: ./findpat2 MODE [OPTIONS] PARAM1 ... PARAMN
 Este programa tem dois modos de execução: INDEXAÇÃO e BUSCA
 MODE deve ser especificado como 'index' ou 'search', indicando um desses modos
-Cada modo requer uma lista específica de parâmetros (PARAM1, ..., PARAM2) e 
+Cada modo requer uma lista específica de parâmetros (PARAM1, ..., PARAMN) e 
 opções (OPTIONS), como descrito a seguir
 
 Uso no modo de indexação: ./findpat2 index [OPTIONS] TEXTFILE
@@ -61,7 +61,7 @@ Exemplos de Uso
 Modo de indexação:
 - Gera um arquivo de índice textfile1.idx para textfile1.txt: ./findpat2 index textfile1.txt
 
-Busca aproximada:
+Modo de busca:
 - Imprime linhas do texto indexado em textfile1.idx onde "ababc" ocorre: ./findpat2 search ababc textfile1.idx
 - Imprime a quantidade de ocorrências de "ababc" no texto indexado em textfile2.idx: ./findpat2 search -c ababc textfile2.idx
 - Imprime a quantidade de ocorrências de padrões listados em patternfile.txt, para o texto indexado em textfile1.idx: ./findpat2 search -c -p patternfile.txt textfile1.idx

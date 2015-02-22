@@ -18,10 +18,10 @@ enum programOptions {UNKNOWN, HELP, PATTERNFILE, COUNT};
 
 const option::Descriptor usage[] =
   {
-    {UNKNOWN, 0, "" , "", Arg::None, "USAGE: findpat2 MODE PARAMETER1 ... PARAMETERN" },
+    {UNKNOWN, 0, "" , "", Arg::None, "USAGE: findpat2 MODE [OPTIONS] PARAM1 ... PARAMN" },
     {UNKNOWN, 0, "" , "", Arg::None, "This program has two execution modes: INDEX and SEARCH\n"
-                                        "MODE is either 'index' or 'search'. Each mode requires a specific list of parameters" 
-                                        "(PARAMETER1, ..., PARAMETERN) and options, described as follows:\n" },
+                                        "MODE is either 'index' or 'search'. Each mode requires a specific list of parameters " 
+                                        "(PARAM1, ..., PARAMN) and options (OPTIONS), described as follows:\n" },
     {UNKNOWN, 0, "" , "", Arg::None, "INDEX USAGE: findpat2 index [OPTIONS] TEXTFILE" },
     {UNKNOWN, 0, "" , "", Arg::None, "Produces an index file for TEXTFILE, allowing subsequent pattern searches in TEXTFILE by using SEARCH mode\n"
                                         "The index file is named as TEXTFILE_BASENAME.idx. For example," 
@@ -38,12 +38,12 @@ const option::Descriptor usage[] =
     {HELP, 0, "h" , "help", Arg::None, "  -h, --help  \tPrint usage and exit" },
     {PATTERNFILE, 0, "p", "pattern", Arg::NonEmpty, "  -p, --pattern  \tSpecify a file with patterns to be searched, one per line," 
                                                                           " instead of using PATTERN" },
-    {COUNT, 0, "c", "count", Arg::None, "  -c, --count  \tInstead of printing the TEXTFILE lines in which the patterns occur,"
-                                                             " the total count of occurrences per file will be shown" },
+    {COUNT, 0, "c", "count", Arg::None, "  -c, --count  \tInstead of printing lines of the text indexed by INDEXFILE in which the patterns occur,"
+                                                             " the total count of occurrences will be shown" },
     {UNKNOWN, 0, "",  "", Arg::None, "\nExamples:\n"
                                              "  findpat2 search ababc textfile1.idx\n"
-                                             "  findpat2 search -c textfile2.idx\n"
-                                             "  findpat2 serch -c -p patternfile.txt textfile1.idx\n" },
+                                             "  findpat2 search -c ababc textfile2.idx\n"
+                                             "  findpat2 search -c -p patternfile.txt textfile1.idx\n" },
     {0, 0, 0, 0, 0, 0}
  };
 

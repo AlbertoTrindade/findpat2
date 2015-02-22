@@ -1,4 +1,4 @@
-Ipmt
+Findpat2
 ==============================
 
 ------------------------------
@@ -15,7 +15,7 @@ Instruções de Compilação
 Para gerar o executável, execute os comandos:
 - cd src/
 - make
-O executável de ipmt é gerado e disponibilizado no diretório /bin
+O executável de findpat2 é gerado e disponibilizado no diretório /bin
 
 Para apagar o diretório /bin com o executável, execute os comandos:
 - cd src/
@@ -27,30 +27,41 @@ Essas instruções consideram que o usuário está na pasta raiz do projeto. Se 
 Instruções de Uso
 ------------------------------
 
-Uso: ./findpat [OPTIONS] PATTERN TEXTFILE [TEXTFILE...]
+Uso: ./findpat2 MODE [OPTIONS] PARAM1 ... PARAMN
+Este programa tem dois modos de execução: INDEXAÇÃO e BUSCA
+MODE deve ser especificado como 'index' ou 'search', indicando um desses modos
+Cada modo requer uma lista específica de parâmetros (PARAM1, ..., PARAM2) e 
+opções (OPTIONS), como descrito a seguir
 
-Esse comando procura por PATTERN em cada TEXTFILE
-Se a opção --pattern for setada, uma lista de padrões será usada no lugar de PATTERN
-Múltiplos arquivos podem ser indicados para TEXTFILE através do uso de wildcards
+Uso no modo de indexação: ./findpat2 index [OPTIONS] TEXTFILE
+Produz um arquivo de índice para TEXTFILE, permitindo futuras buscas de padrões
+em TEXTFILE, através do modo de busca da ferramenta
+O arquivo do índice é nomeado como TEXTFILE_BASENAME.idx. Por exemplo, "findpat2 index
+textile.txt" produz um arquivo com o nome "textfile.idx"
 
 Opções (OPTIONS):
   -h, --help     Imprime instruções de uso (em Inglês)
-  -e, --edit     Especifica uma distância de edição máxima para encontrar ocorrências aproximadas
-                 de PATTERN ou dos padrões especificados pela opção --pattern, ao invés de ocorrências 
-                 exatas, que é a opção padrão
-  -p, --pattern  Especifica um arquivo com padrões para serem buscados, um por linha,
+
+Uso no modo de busca: ./findpat2 search [OPTIONS] PATTERN INDEXFILE
+Esse comando busca por ocorrências de PATTERN no arquivo de texto indexado em INDEXFILE, 
+que deve ser um arquivo com extensão .idx gerado por este programa no modo de indexação
+Se a opção --pattern for setada, uma lista de padrões será usada no lugar de PATTERN
+
+Opções (OPTIONS):
+  -h, --help     Imprime instruções de uso (em Inglês)
+  -p, --pattern  Especifica um arquivo com padrões a serem buscados, um por linha,
                  para serem usados no lugar de PATTERN
-  -c, --count    Ao invés de imprimir as linhas de TEXTFILE em que os padrões ocorrem, a quantidade
-                 total de ocorrência por arquivo é exibida
+  -c, --count    Ao invés de imprimir as linhas do texto indexado em INDEXFILE em que os 
+                 padrões ocorrem, a quantidade total de ocorrências é exibida
 
 ------------------------------
 Exemplos de Uso
 ------------------------------
 
-Busca exata:
-- Imprime linhas de textfile1.txt onde "ababc" ocorre: ./findpat ababc textfile1.txt
-- Imprime a quantidade de ocorrências em textfile1.txt de padrões listados em patternfile.txt: ./findpat -c -p patternfile.txt textfile1.txt
+Modo de indexação:
+- Gera um arquivo de índice textfile1.idx para textfile1.txt: ./findpat2 index textfile1.txt
 
 Busca aproximada:
-- Imprime linhas de textfile.txt onde "ababc" ocorre com distância de edição máxima 1: ./findpat -e 1 -p ababc textfile.txt
-- Imprime a quantidade de ocorrências com distância de edição máxima 2 de padrões listados em patternfile.txt, para cada arquivo de texto prefixado por "textfile": ./findpat -c -e 2 -p patternfile.txt textfile*.txt
+- Imprime linhas do texto indexado em textfile1.idx onde "ababc" ocorre: ./findpat2 search ababc textfile1.idx
+- Imprime a quantidade de ocorrências de "ababc" no texto indexado em textfile2.idx: ./findpat2 search -c ababc textfile2.idx
+- Imprime a quantidade de ocorrências de padrões listados em patternfile.txt, para o texto indexado em textfile1.idx: ./findpat2 search -c -p patternfile.txt textfile1.idx
